@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 遊戲</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">2048</h1>
+        <div class="score-container">
+            <div class="score-box">
+                <div class="score-label">分數</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="score-box">
+                <div class="score-label">最高</div>
+                <div class="score-value" id="best-score">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-wrapper">
+        <div class="game-container">
+            <div class="grid">
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            </div>
+            <div class="tile-container" id="tile-container"></div>
+            <div class="game-over" id="game-over">
+                <h2>遊戲結束!</h2>
+                <button class="restart-btn" id="restart-btn">再玩一次</button>
+            </div>
+            <div class="win-display" id="win-display">
+                <h2>恭喜!</h2>
+                <p>你達到了 2048!</p>
+                <button class="restart-btn" id="continue-btn">繼續遊戲</button>
+            </div>
+        </div>
+
+        <div class="rules-panel">
+            <h3>遊戲規則</h3>
+            <ul class="rules-list">
+                <li>移動方塊，讓相同數字合併</li>
+                <li><span class="rule-example">2</span> + <span class="rule-example">2</span> = <span class="rule-example">4</span></li>
+                <li>目標：合併出 <strong>2048</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <p class="instructions">
+        使用 <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> 鍵或滑動來移動方塊
+    </p>
+
+    <div class="key-hints">
+        <div class="key-row">
+            <div class="key">↑</div>
+        </div>
+        <div class="key-row">
+            <div class="key-group">
+                <div class="key">←</div>
+                <div class="key">↓</div>
+                <div class="key">→</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
