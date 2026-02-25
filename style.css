@@ -277,18 +277,95 @@ body {
     margin: 0 2px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 480px) {
     :root {
-        --cell-size: 65px;
+        --cell-size: 60px;
+        --gap: 8px;
     }
-    .title { font-size: 36px; }
-    .key { width: 30px; height: 30px; font-size: 14px; }
+    
+    body {
+        padding: 10px;
+    }
+    
+    .header {
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .title { 
+        font-size: 40px; 
+    }
+    
+    .score-container {
+        width: 100%;
+        justify-content: center;
+    }
+    
     .game-wrapper {
         flex-direction: column;
         align-items: center;
     }
+    
     .rules-panel {
         width: calc(var(--cell-size) * 4 + var(--gap) * 5);
+        padding: 12px;
+    }
+    
+    .rules-panel h3 {
+        font-size: 16px;
+    }
+    
+    .rules-list {
+        font-size: 13px;
+    }
+    
+    .instructions {
+        font-size: 14px;
+    }
+    
+    .key-hints {
+        display: none;
+    }
+    
+    .tile {
+        font-size: 24px;
+    }
+    
+    .tile-128,
+    .tile-256,
+    .tile-512 {
+        font-size: 20px;
+    }
+    
+    .tile-1024,
+    .tile-2048 {
+        font-size: 16px;
+    }
+    
+    .game-over h2,
+    .win-display h2 {
+        font-size: 32px;
+    }
+    
+    .restart-btn {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 360px) {
+    :root {
+        --cell-size: 55px;
+        --gap: 6px;
+    }
+    
+    .title {
+        font-size: 32px;
+    }
+    
+    .rules-panel {
+        display: none;
     }
 }
 

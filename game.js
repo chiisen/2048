@@ -63,32 +63,46 @@ class Game2048 {
         document.addEventListener('keydown', (e) => this.handleKey(e));
         
         let startX, startY;
+        let isTouching = false;
         
-        const handleStart = (x, y) => {
+        const handleStart = (x, y, isTouch) => {
             startX = x;
             startY = y;
+            isTouching = isTouch;
         };
         
         const handleEnd = (x, y) => {
             if (startX === undefined || startY === undefined) return;
+            
             const dx = x - startX;
             const dy = y - startY;
-            this.handleSwipe(dx, dy);
+            
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                this.handleSwipe(dx, dy);
+            }
+            
             startX = undefined;
             startY = undefined;
+            isTouching = false;
         };
 
         document.addEventListener('touchstart', (e) => {
-            handleStart(e.touches[0].clientX, e.touches[0].clientY);
-        });
+            if (e.target.tagName === 'BUTTON') return;
+            handleStart(e.touches[0].clientX, e.touches[0].clientY, true);
+        }, { passive: true });
+        
         document.addEventListener('touchend', (e) => {
+            if (e.target.tagName === 'BUTTON') return;
             handleEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
-        });
+        }, { passive: true });
 
         document.addEventListener('mousedown', (e) => {
-            handleStart(e.clientX, e.clientY);
+            if (e.target.tagName === 'BUTTON') return;
+            handleStart(e.clientX, e.clientY, false);
         });
+        
         document.addEventListener('mouseup', (e) => {
+            if (e.target.tagName === 'BUTTON') return;
             handleEnd(e.clientX, e.clientY);
         });
 
