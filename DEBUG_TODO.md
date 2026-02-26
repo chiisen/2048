@@ -1,10 +1,8 @@
 # 2048 畫面演出邏輯 DEBUG 待辦清單
 
-## 階段一：基礎環境確認
-
-- [ ] 1.1 確認瀏覽器開發者工具可正常開啟 (F12)
-- [ ] 1.2 確認 console 無報錯 (Error 為 0)
-- [ ] 1.3 確認 index.html 正確引入 game.js 與 style.css
+## 環境資訊
+- OS: Windows 11
+- Shell: PowerShell 7 (pwsh)
 
 ---
 
