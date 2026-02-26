@@ -1,9 +1,5 @@
 # 2048 畫面演出邏輯 DEBUG 待辦清單
 
-## 環境資訊
-- OS: Windows 11
-- Shell: PowerShell 7 (pwsh)
-
 ---
 
 ## 階段二：瓦片移動 DEBUG
