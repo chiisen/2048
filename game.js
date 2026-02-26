@@ -7,6 +7,7 @@ class Game2048 {
         this.grid = [];
         this.score = 0;
         this.bestScore = parseInt(localStorage.getItem('bestScore')) || 0;
+        this.theme = localStorage.getItem('theme') || 'light';
         
         this.tileContainer = document.getElementById('tile-container');
         this.scoreDisplay = document.getElementById('score');
@@ -15,16 +16,74 @@ class Game2048 {
         this.winDisplay = document.getElementById('win-display');
         this.restartBtn = document.getElementById('restart-btn');
         this.continueBtn = document.getElementById('continue-btn');
+        this.themeBtn = document.getElementById('theme-btn');
+        this.swipeIndicator = document.getElementById('swipe-indicator');
+        this.comboDisplay = document.getElementById('combo-display');
+        this.comboCount = 0;
+        this.history = [];
+        this.undoBtn = document.getElementById('undo-btn');
         
         this.tileId = 0;
         this.won = false;
         this.continued = false;
 
+        this.applyTheme();
         this.updateCellSize();
         this.init();
         this.bindEvents();
         
         window.addEventListener('resize', () => this.updateCellSize());
+    }
+
+    applyTheme() {
+        document.documentElement.setAttribute('data-theme', this.theme);
+        this.themeBtn.textContent = this.theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    playSound(type) {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (type === 'move') {
+                oscillator.frequency.value = 200;
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.1);
+            } else if (type === 'merge') {
+                oscillator.frequency.value = 400;
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.15);
+            } else if (type === 'gameover') {
+                oscillator.frequency.value = 150;
+                oscillator.type = 'sawtooth';
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'win') {
+                oscillator.frequency.value = 523;
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                oscillator.frequency.setValueAtTime(659, audioCtx.currentTime + 0.1);
+                oscillator.frequency.setValueAtTime(784, audioCtx.currentTime + 0.2);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 0.4);
+            }
+        } catch (e) {}
+    }
+
+    toggleTheme() {
+        this.theme = this.theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('theme', this.theme);
+        this.applyTheme();
     }
 
     updateCellSize() {
@@ -48,10 +107,12 @@ class Game2048 {
         this.won = false;
         this.continued = false;
         this.tileId = 0;
+        this.history = [];
         
         this.updateScore();
         this.updateBestScore();
         this.clearTiles();
+        this.updateUndoButton();
         this.gameOverDisplay.classList.remove('active');
         this.winDisplay?.classList?.remove('active');
         
@@ -108,6 +169,8 @@ class Game2048 {
 
         this.restartBtn.addEventListener('click', () => this.init());
         this.continueBtn?.addEventListener('click', () => this.continueGame());
+        this.themeBtn.addEventListener('click', () => this.toggleTheme());
+        this.undoBtn.addEventListener('click', () => this.undo());
     }
 
     handleKey(e) {
@@ -120,19 +183,100 @@ class Game2048 {
         if (keyMap[e.key]) {
             e.preventDefault();
             this.move(keyMap[e.key]);
+        } else if (e.key === 'z' || e.key === 'Z') {
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                this.undo();
+            }
         }
     }
 
     handleSwipe(dx, dy) {
         const threshold = 30;
+        const directionArrows = { 'up': '↑', 'down': '↓', 'left': '←', 'right': '→' };
+        
         if (Math.abs(dx) > Math.abs(dy)) {
             if (Math.abs(dx) > threshold) {
-                this.move(dx > 0 ? 'right' : 'left');
+                const direction = dx > 0 ? 'right' : 'left';
+                this.showSwipeIndicator(directionArrows[direction]);
+                this.move(direction);
             }
         } else {
             if (Math.abs(dy) > threshold) {
-                this.move(dy > 0 ? 'down' : 'up');
+                const direction = dy > 0 ? 'down' : 'up';
+                this.showSwipeIndicator(directionArrows[direction]);
+                this.move(direction);
             }
+        }
+    }
+
+    showSwipeIndicator(arrow) {
+        if (!this.swipeIndicator) return;
+        this.swipeIndicator.textContent = arrow;
+        this.swipeIndicator.classList.add('show');
+        setTimeout(() => {
+            this.swipeIndicator.classList.remove('show');
+        }, 200);
+    }
+
+    showCombo(count) {
+        if (!this.comboDisplay) return;
+        this.comboDisplay.textContent = `${count} COMBO!`;
+        this.comboDisplay.classList.add('show');
+        setTimeout(() => {
+            this.comboDisplay.classList.remove('show');
+        }, 500);
+    }
+
+    saveHistory() {
+        const state = {
+            grid: this.grid.map(row => row.map(cell => cell ? { value: cell.value, id: cell.id } : null)),
+            score: this.score
+        };
+        this.history.push(state);
+        if (this.history.length > 10) this.history.shift();
+        this.updateUndoButton();
+    }
+
+    undo() {
+        if (this.history.length === 0) return;
+        
+        const state = this.history.pop();
+        this.score = state.score;
+        this.updateScore();
+        
+        this.clearTiles();
+        
+        for (let r = 0; r < this.size; r++) {
+            for (let c = 0; c < this.size; c++) {
+                const cell = state.grid[r][c];
+                if (cell) {
+                    const tile = document.createElement('div');
+                    const tileClass = cell.value > 2048 ? 'super' : cell.value;
+                    tile.className = `tile tile-${tileClass}`;
+                    tile.textContent = cell.value;
+                    tile.dataset.id = cell.id;
+                    
+                    const pos = this.getTilePosition(c, r);
+                    tile.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+                    tile.style.width = `${this.cellSize}px`;
+                    tile.style.height = `${this.cellSize}px`;
+                    
+                    this.tileContainer.appendChild(tile);
+                    this.grid[r][c] = { element: tile, value: cell.value, id: cell.id };
+                } else {
+                    this.grid[r][c] = null;
+                }
+            }
+        }
+        
+        this.updateUndoButton();
+        this.playSound('move');
+    }
+
+    updateUndoButton() {
+        if (this.undoBtn) {
+            this.undoBtn.disabled = this.history.length === 0;
         }
     }
 
@@ -197,6 +341,7 @@ class Game2048 {
                     
                     mergedPositions.push(arr[i]);
                     arr[i].element.classList.add('tile-merged');
+                    this.playSound('merge');
                     
                     if (arr[i].value === 2048 && !this.won && !this.continued) {
                         this.showWin();
@@ -256,6 +401,16 @@ class Game2048 {
         }
 
         if (moved) {
+            this.saveHistory();
+            
+            if (mergedPositions.length > 1) {
+                this.comboCount += mergedPositions.length;
+                this.showCombo(this.comboCount);
+            } else if (mergedPositions.length === 1) {
+                this.comboCount = 0;
+            }
+            
+            this.playSound('move');
             this.updateScore();
             
             setTimeout(() => {
@@ -283,6 +438,7 @@ class Game2048 {
 
     showWin() {
         this.won = true;
+        this.playSound('win');
         const winEl = document.getElementById('win-display');
         if (winEl) winEl.classList.add('active');
     }
@@ -294,6 +450,7 @@ class Game2048 {
     }
 
     showGameOver() {
+        this.playSound('gameover');
         this.gameOverDisplay.classList.add('active');
     }
 
