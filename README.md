@@ -70,22 +70,6 @@ npx serve
 
 ## 📋 待辦事項 (TODO)
 
-### 🎬 畫面演出 DEBUG
-
-- [x] 確認開發者工具 Console 無錯誤
-- [x] 檢查瓦片移動動畫是否流暢 (transform transition)
-- [x] 驗證新瓦片出現動畫 (appear keyframes)
-- [x] 確認合併彈出動畫是否觸發 (pop keyframes)
-- [x] 檢查遊戲結束/勝利畫面顯示正確
-- [x] 測試彩紙效果 (confetti) 觸發時機
-- [x] 驗證動畫時序問題 (setTimeout 200ms 是否足夠)
-
-### 🐛 Bug 修復
-
-- [x] 修復 tile-new 類別未移除問題
-- [x] 修復 tile-merged 類別未添加問題
-- [x] 檢查合併後 value 顯示正確性
-
 ### ⚡ 效能優化
 
 - [ ] 使用 Chrome Performance 面板測量 FPS
