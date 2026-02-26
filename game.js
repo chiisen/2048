@@ -318,37 +318,38 @@ class Game2048 {
         if (!this.aiPlaying) return;
         
         const directions = ['up', 'down', 'left', 'right'];
-        let bestDir = directions[0];
+        let bestDir = null;
         let bestScore = -Infinity;
         
         for (const dir of directions) {
-            const score = this.evaluateMove(dir);
-            if (score > bestScore) {
-                bestScore = score;
+            const result = this.evaluateMove(dir);
+            if (result.canMove && result.score > bestScore) {
+                bestScore = result.score;
                 bestDir = dir;
             }
         }
         
+        if (!bestDir) {
+            this.aiPlaying = false;
+            this.aiBtn.textContent = '🤖';
+            this.aiBtn.classList.remove('active');
+            this.showGameOver();
+            return;
+        }
+        
         this.move(bestDir);
         
-        if (this.aiPlaying && !this.gameOverDisplay.classList.contains('active')) {
+        if (this.aiPlaying) {
             this.aiInterval = setTimeout(() => this.runAI(), 250);
         }
     }
 
     evaluateMove(direction) {
-        const vector = {
-            'up': { r: -1, c: 0 },
-            'down': { r: 1, c: 0 },
-            'left': { r: 0, c: -1 },
-            'right': { r: 0, c: 1 }
-        }[direction];
-
         const isVertical = direction === 'up' || direction === 'down';
         const isReverse = direction === 'down' || direction === 'right';
         
         let score = 0;
-        let merged = false;
+        let canMove = false;
         
         for (let i = 0; i < this.size; i++) {
             let line;
@@ -364,11 +365,29 @@ class Game2048 {
             if (isReverse) line.reverse();
 
             let arr = line.filter(cell => cell !== null);
+            let newLine = [...arr];
             
-            for (let j = 0; j < arr.length - 1; j++) {
-                if (arr[j].value === arr[j + 1].value) {
-                    score += arr[j].value * 2;
-                    merged = true;
+            for (let j = 0; j < newLine.length - 1; j++) {
+                if (newLine[j].value === newLine[j + 1].value) {
+                    newLine[j].value *= 2;
+                    score += newLine[j].value;
+                    newLine.splice(j + 1, 1);
+                }
+            }
+            
+            while (newLine.length < this.size) {
+                newLine.push(null);
+            }
+            
+            if (isReverse) newLine.reverse();
+            
+            for (let j = 0; j < this.size; j++) {
+                const orig = isVertical ? this.grid[j][i] : (isReverse ? this.grid[i][this.size - 1 - j] : this.grid[i][j]);
+                const newVal = newLine[j];
+                
+                if ((orig === null && newVal !== null) || (orig !== null && newVal === null) || 
+                    (orig !== null && newVal !== null && orig.value !== newVal.value)) {
+                    canMove = true;
                 }
             }
         }
@@ -376,7 +395,7 @@ class Game2048 {
         const emptyCells = this.grid.flat().filter(c => c === null).length;
         score += emptyCells * 10;
         
-        return score;
+        return { canMove, score };
     }
 
     handleKey(e) {
