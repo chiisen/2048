@@ -351,39 +351,40 @@ class Game2048 {
         let score = 0;
         let canMove = false;
         
+        const testGrid = this.grid.map(row => row.map(cell => cell ? { value: cell.value } : null));
+        
         for (let i = 0; i < this.size; i++) {
             let line;
             if (isVertical) {
                 line = [];
                 for (let j = 0; j < this.size; j++) {
-                    line.push(this.grid[j][i]);
+                    line.push(testGrid[j][i]);
                 }
             } else {
-                line = [...this.grid[i]];
+                line = [...testGrid[i]];
             }
 
             if (isReverse) line.reverse();
 
             let arr = line.filter(cell => cell !== null);
-            let newLine = [...arr];
             
-            for (let j = 0; j < newLine.length - 1; j++) {
-                if (newLine[j].value === newLine[j + 1].value) {
-                    newLine[j].value *= 2;
-                    score += newLine[j].value;
-                    newLine.splice(j + 1, 1);
+            for (let j = 0; j < arr.length - 1; j++) {
+                if (arr[j].value === arr[j + 1].value) {
+                    arr[j].value *= 2;
+                    score += arr[j].value;
+                    arr.splice(j + 1, 1);
                 }
             }
             
-            while (newLine.length < this.size) {
-                newLine.push(null);
+            while (arr.length < this.size) {
+                arr.push(null);
             }
             
-            if (isReverse) newLine.reverse();
+            if (isReverse) arr.reverse();
             
             for (let j = 0; j < this.size; j++) {
-                const orig = isVertical ? this.grid[j][i] : (isReverse ? this.grid[i][this.size - 1 - j] : this.grid[i][j]);
-                const newVal = newLine[j];
+                const orig = isVertical ? this.grid[j][i] : this.grid[i][j];
+                const newVal = arr[j];
                 
                 if ((orig === null && newVal !== null) || (orig !== null && newVal === null) || 
                     (orig !== null && newVal !== null && orig.value !== newVal.value)) {
