@@ -100,11 +100,12 @@ class Game2048 {
         
         try {
             this.bgmPlaying = true;
+            this.bgmIndex = 0;
             this.bgmInterval = setInterval(() => {
                 if (!this.soundEnabled || !this.audioCtx || this.audioCtx.state !== 'running') return;
                 if (this.gameOverDisplay.classList.contains('active')) return;
-                this.playBGMNote();
-            }, 400);
+                this.playBGMRhythm();
+            }, 150);
         } catch (e) {
             this.bgmPlaying = false;
         }
@@ -118,26 +119,41 @@ class Game2048 {
         }
     }
 
-    playBGMNote() {
+    playBGMRhythm() {
         if (!this.audioCtx || this.audioCtx.state !== 'running') return;
+        
+        const majorScale = [262, 294, 330, 349, 392, 440, 494, 523, 587, 659];
+        const bassLine = [65, 73, 82, 98];
+        
+        const beat = this.bgmIndex % 4;
+        
+        if (beat === 0) {
+            this.playNote(majorScale[Math.floor(Math.random() * 5) + 2], 0.04, 0.15);
+            this.playNote(bassLine[Math.floor(this.bgmIndex / 4) % 4], 0.06, 0.2);
+        } else if (beat === 1) {
+            this.playNote(majorScale[Math.floor(Math.random() * 3) + 4], 0.03, 0.1);
+        } else if (beat === 2) {
+            this.playNote(majorScale[Math.floor(Math.random() * 5)], 0.03, 0.1);
+        } else {
+            this.playNote(majorScale[Math.floor(Math.random() * 4) + 3], 0.025, 0.08);
+        }
+        
+        this.bgmIndex++;
+    }
+
+    playNote(freq, volume, duration) {
+        if (!this.audioCtx) return;
         try {
-            const oscillator = this.audioCtx.createOscillator();
-            const gainNode = this.audioCtx.createGain();
-            
-            const bgmNotes = [262, 294, 330, 349, 392, 440, 494, 523];
-            const note = bgmNotes[Math.floor(Math.random() * bgmNotes.length)];
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(this.audioCtx.destination);
-            
-            oscillator.frequency.value = note;
-            oscillator.type = 'sine';
-            
-            gainNode.gain.setValueAtTime(0.03, this.audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.005, this.audioCtx.currentTime + 0.3);
-            
-            oscillator.start(this.audioCtx.currentTime);
-            oscillator.stop(this.audioCtx.currentTime + 0.3);
+            const osc = this.audioCtx.createOscillator();
+            const gain = this.audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(this.audioCtx.destination);
+            osc.frequency.value = freq;
+            osc.type = 'sine';
+            gain.gain.setValueAtTime(volume, this.audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + duration);
+            osc.start(this.audioCtx.currentTime);
+            osc.stop(this.audioCtx.currentTime + duration);
         } catch (e) {}
     }
 
