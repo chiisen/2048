@@ -8,6 +8,8 @@ class Game2048 {
         this.score = 0;
         this.bestScore = parseInt(localStorage.getItem('bestScore')) || 0;
         this.theme = localStorage.getItem('theme') || 'light';
+        this.soundEnabled = localStorage.getItem('soundEnabled') !== 'false';
+        this.userInteracted = false;
         
         this.tileContainer = document.getElementById('tile-container');
         this.scoreDisplay = document.getElementById('score');
@@ -26,7 +28,7 @@ class Game2048 {
         this.tileId = 0;
         this.won = false;
         this.continued = false;
-
+        
         this.applyTheme();
         this.updateCellSize();
         this.init();
@@ -40,7 +42,77 @@ class Game2048 {
         this.themeBtn.textContent = this.theme === 'dark' ? '☀️' : '🌙';
     }
 
+    toggleTheme() {
+        this.theme = this.theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('theme', this.theme);
+        this.applyTheme();
+    }
+
+    toggleSound() {
+        this.soundEnabled = !this.soundEnabled;
+        this.userInteracted = true;
+        localStorage.setItem('soundEnabled', this.soundEnabled);
+        document.getElementById('sound-btn').textContent = this.soundEnabled ? '🔊' : '🔇';
+        if (this.soundEnabled) {
+            this.startBGM();
+        } else {
+            this.stopBGM();
+        }
+    }
+
+    enableAudio() {
+        if (!this.userInteracted) {
+            this.userInteracted = true;
+            if (this.soundEnabled) {
+                this.startBGM();
+            }
+        }
+    }
+
+    startBGM() {
+        if (!this.soundEnabled || !this.userInteracted || this.bgmPlaying) return;
+        try {
+            this.bgmPlaying = true;
+            this.bgmInterval = setInterval(() => {
+                if (!this.soundEnabled || this.gameOverDisplay.classList.contains('active')) return;
+                this.playBGMNote();
+            }, 400);
+        } catch (e) {}
+    }
+
+    stopBGM() {
+        this.bgmPlaying = false;
+        if (this.bgmInterval) {
+            clearInterval(this.bgmInterval);
+            this.bgmInterval = null;
+        }
+    }
+
+    playBGMNote() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            const bgmNotes = [262, 294, 330, 349, 392, 440, 494, 523];
+            const note = bgmNotes[Math.floor(Math.random() * bgmNotes.length)];
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.frequency.value = note;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.03, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.005, audioCtx.currentTime + 0.3);
+            
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.3);
+        } catch (e) {}
+    }
+
     playSound(type) {
+        if (!this.soundEnabled) return;
         try {
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioCtx.createOscillator();
@@ -118,6 +190,10 @@ class Game2048 {
         
         this.addRandomTile();
         this.addRandomTile();
+        
+        if (this.soundEnabled) {
+            this.startBGM();
+        }
     }
 
     bindEvents() {
@@ -171,6 +247,13 @@ class Game2048 {
         this.continueBtn?.addEventListener('click', () => this.continueGame());
         this.themeBtn.addEventListener('click', () => this.toggleTheme());
         this.undoBtn.addEventListener('click', () => this.undo());
+        
+        const soundBtn = document.getElementById('sound-btn');
+        soundBtn.textContent = this.soundEnabled ? '🔊' : '🔇';
+        soundBtn.addEventListener('click', () => this.toggleSound());
+        
+        document.addEventListener('click', () => this.enableAudio(), { once: true });
+        document.addEventListener('keydown', () => this.enableAudio(), { once: true });
     }
 
     handleKey(e) {
@@ -438,6 +521,7 @@ class Game2048 {
 
     showWin() {
         this.won = true;
+        this.stopBGM();
         this.playSound('win');
         const winEl = document.getElementById('win-display');
         if (winEl) winEl.classList.add('active');
@@ -450,6 +534,7 @@ class Game2048 {
     }
 
     showGameOver() {
+        this.stopBGM();
         this.playSound('gameover');
         this.gameOverDisplay.classList.add('active');
     }
