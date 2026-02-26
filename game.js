@@ -24,6 +24,9 @@ class Game2048 {
         this.comboCount = 0;
         this.history = [];
         this.undoBtn = document.getElementById('undo-btn');
+        this.aiBtn = document.getElementById('ai-btn');
+        this.aiPlaying = false;
+        this.aiInterval = null;
         
         this.tileId = 0;
         this.won = false;
@@ -180,8 +183,6 @@ class Game2048 {
             }
         } catch (e) {}
     }
-        } catch (e) {}
-    }
 
     toggleTheme() {
         this.theme = this.theme === 'light' ? 'dark' : 'light';
@@ -205,6 +206,11 @@ class Game2048 {
     }
 
     init() {
+        this.stopAI();
+        this.aiPlaying = false;
+        this.aiBtn.textContent = '🤖';
+        this.aiBtn.classList.remove('active');
+        
         this.grid = Array(this.size).fill().map(() => Array(this.size).fill(null));
         this.score = 0;
         this.won = false;
@@ -283,8 +289,94 @@ class Game2048 {
         soundBtn.textContent = this.soundEnabled ? '🔊' : '🔇';
         soundBtn.addEventListener('click', () => this.toggleSound());
         
+        this.aiBtn.addEventListener('click', () => this.toggleAI());
+        
         document.addEventListener('click', () => this.enableAudio(), { once: true });
         document.addEventListener('keydown', () => this.enableAudio(), { once: true });
+    }
+
+    toggleAI() {
+        this.aiPlaying = !this.aiPlaying;
+        this.aiBtn.textContent = this.aiPlaying ? '⏹️' : '🤖';
+        this.aiBtn.classList.toggle('active', this.aiPlaying);
+        
+        if (this.aiPlaying) {
+            this.runAI();
+        } else {
+            this.stopAI();
+        }
+    }
+
+    stopAI() {
+        if (this.aiInterval) {
+            clearInterval(this.aiInterval);
+            this.aiInterval = null;
+        }
+    }
+
+    runAI() {
+        if (!this.aiPlaying) return;
+        
+        const directions = ['up', 'down', 'left', 'right'];
+        let bestDir = directions[0];
+        let bestScore = -Infinity;
+        
+        for (const dir of directions) {
+            const score = this.evaluateMove(dir);
+            if (score > bestScore) {
+                bestScore = score;
+                bestDir = dir;
+            }
+        }
+        
+        this.move(bestDir);
+        
+        if (this.aiPlaying && !this.gameOverDisplay.classList.contains('active')) {
+            this.aiInterval = setTimeout(() => this.runAI(), 250);
+        }
+    }
+
+    evaluateMove(direction) {
+        const vector = {
+            'up': { r: -1, c: 0 },
+            'down': { r: 1, c: 0 },
+            'left': { r: 0, c: -1 },
+            'right': { r: 0, c: 1 }
+        }[direction];
+
+        const isVertical = direction === 'up' || direction === 'down';
+        const isReverse = direction === 'down' || direction === 'right';
+        
+        let score = 0;
+        let merged = false;
+        
+        for (let i = 0; i < this.size; i++) {
+            let line;
+            if (isVertical) {
+                line = [];
+                for (let j = 0; j < this.size; j++) {
+                    line.push(this.grid[j][i]);
+                }
+            } else {
+                line = [...this.grid[i]];
+            }
+
+            if (isReverse) line.reverse();
+
+            let arr = line.filter(cell => cell !== null);
+            
+            for (let j = 0; j < arr.length - 1; j++) {
+                if (arr[j].value === arr[j + 1].value) {
+                    score += arr[j].value * 2;
+                    merged = true;
+                }
+            }
+        }
+        
+        const emptyCells = this.grid.flat().filter(c => c === null).length;
+        score += emptyCells * 10;
+        
+        return score;
     }
 
     handleKey(e) {
@@ -553,6 +645,7 @@ class Game2048 {
     showWin() {
         this.won = true;
         this.stopBGM();
+        this.stopAI();
         this.playSound('win');
         const winEl = document.getElementById('win-display');
         if (winEl) winEl.classList.add('active');
@@ -566,6 +659,7 @@ class Game2048 {
 
     showGameOver() {
         this.stopBGM();
+        this.stopAI();
         this.playSound('gameover');
         this.gameOverDisplay.classList.add('active');
     }
