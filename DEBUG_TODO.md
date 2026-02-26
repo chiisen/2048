@@ -30,8 +30,8 @@
 - [ ] 3.3 確認 CSS 動畫 appear 是否套用
   - 檢查 style.css:107-109 的 `.tile-new` 類別
   - 檢查 game.js:157 是否正確添加 `tile-new` 類別
-- [ ] 3.4 確認 tile-new 動畫是否在正確時機移除
-  - 目前程式碼未移除 tile-new 類別 (BUG)
+- [x] 3.4 確認 tile-new 動畫是否在正確時機移除
+  - 已於 game.js:263-265 添加移除邏輯 (setTimeout 中移除)
 
 ---
 
@@ -39,9 +39,8 @@
 
 - [ ] 4.1 確認 processLine() 合併邏輯正確
   - 檢查 mergedPositions 陣列是否正確收集合併的瓦片
-- [ ] 4.2 檢查 tile-merged 類別是否被添加
-  - 目前程式碼未添加 tile-merged 類別 (BUG)
-  - 位置應在 game.js:252 處添加
+- [x] 4.2 檢查 tile-merged 類別是否被添加
+  - 已於 game.js:199 添加 tile-merged 類別
 - [ ] 4.3 確認 @keyframes pop 動畫是否存在
   - 檢查 style.css:120-124
 - [ ] 4.4 測試合併後的 value 顯示是否正確
@@ -80,8 +79,10 @@
 
 ## 已識別的 BUG 清單
 
-1. **tile-new 類別未移除** - 新瓦片動畫後應移除該類別
-2. **tile-merged 類別未添加** - 合併時應添加彈出動畫類別
+1. **[已修復] tile-new 類別未移除** - 新瓦片動畫後應移除該類別
+   - 已於 game.js:263-265 添加移除邏輯
+2. **[已修復] tile-merged 類別未添加** - 合併時應添加彈出動畫類別
+   - 已於 game.js:199 添加 `arr[i].element.classList.add('tile-merged')`
 3. **合併動畫時機問題** - 需確認 CSS 動畫與 setTimeout 時序
 
 ---

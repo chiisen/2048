@@ -196,6 +196,7 @@ class Game2048 {
                     arr.splice(i + 1, 1);
                     
                     mergedPositions.push(arr[i]);
+                    arr[i].element.classList.add('tile-merged');
                     
                     if (arr[i].value === 2048 && !this.won && !this.continued) {
                         this.showWin();
@@ -258,6 +259,10 @@ class Game2048 {
             this.updateScore();
             
             setTimeout(() => {
+                document.querySelectorAll('.tile-new').forEach(tile => {
+                    tile.classList.remove('tile-new');
+                });
+                
                 if (mergedPositions.length > 0) {
                     confetti({
                         particleCount: 30,
