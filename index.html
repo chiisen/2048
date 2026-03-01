@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2048 遊戲</title>
+    <title>2048 遊戲 - 經典拼圖</title>
+    <!-- Google Fonts 引入 (Fredoka 適合軟圓風格遊戲) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <!-- 遊戲自定義樣式 -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- 遊戲頂部資訊欄：包含標題、分數、功能切換 -->
     <div class="header">
         <h1 class="title">2048</h1>
         <div class="score-container">
@@ -21,35 +24,51 @@
                 <div class="score-label">最高</div>
                 <div class="score-value" id="best-score">0</div>
             </div>
+            <!-- 切換主題 (深色/淺色) -->
             <button class="theme-btn" id="theme-btn" title="切換主題">🌙</button>
+            <!-- 音效開關 -->
             <button class="theme-btn" id="sound-btn" title="切換音效">🔊</button>
+            <!-- AI 自動玩開關 -->
             <button class="theme-btn" id="ai-btn" title="電腦帶玩">🤖</button>
         </div>
     </div>
 
+    <!-- 遊戲主要運作區塊 -->
     <div class="game-wrapper">
+        <!-- 網格容器：包含底置網格與動態方塊 -->
         <div class="game-container">
+            <!-- 基礎背景網格 (4x4 空格) -->
             <div class="grid">
                 <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
                 <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
                 <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
                 <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
             </div>
+            <!-- 實際渲染數字方塊的容器 -->
             <div class="tile-container" id="tile-container"></div>
+            
+            <!-- 遊戲結束/獲勝彈窗 -->
             <div class="game-over" id="game-over">
                 <h2>遊戲結束!</h2>
                 <button class="restart-btn" id="restart-btn">再玩一次</button>
             </div>
+            
+            <!-- 方向與連擊指示器 -->
             <div class="swipe-indicator" id="swipe-indicator"></div>
             <div class="combo-display" id="combo-display"></div>
+            
+            <!-- 獲勝後的遮罩 -->
             <div class="win-display" id="win-display">
                 <h2>恭喜!</h2>
                 <p>你達到了 2048!</p>
                 <button class="restart-btn" id="continue-btn">繼續遊戲</button>
             </div>
+            
+            <!-- 悔棋按鈕 -->
             <button class="undo-btn" id="undo-btn" title="悔棋">↩️</button>
         </div>
 
+        <!-- 側邊規則說明板 -->
         <div class="rules-panel">
             <h3>遊戲規則</h3>
             <ul class="rules-list">
@@ -60,10 +79,12 @@
         </div>
     </div>
 
+    <!-- 鍵盤/操作提示 -->
     <p class="instructions">
         使用 <kbd>↑</kbd> <kbd>↓</kbd> <kbd>←</kbd> <kbd>→</kbd> 鍵或滑動來移動方塊
     </p>
 
+    <!-- 視覺化按鍵提示 (螢幕下方) -->
     <div class="key-hints">
         <div class="key-row">
             <div class="key">↑</div>
@@ -77,7 +98,10 @@
         </div>
     </div>
 
+    <!-- 第三方套件：彩帶效果 -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <!-- 遊戲邏輯 JS -->
     <script src="game.js"></script>
 </body>
 </html>
+

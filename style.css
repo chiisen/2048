@@ -1,3 +1,4 @@
+/* 全域 CSS 變數定義：包含光亮模式與基礎尺寸 */
 :root {
     --bg-color: #faf8ef;
     --grid-bg: #bbada0;
@@ -8,6 +9,7 @@
     --gap: 10px;
 }
 
+/* 深色模式變數覆寫 */
 [data-theme="dark"] {
     --bg-color: #1a1a2e;
     --grid-bg: #16213e;
@@ -16,6 +18,7 @@
     --text-light: #f9f6f2;
 }
 
+/* 基礎重置 */
 * {
     margin: 0;
     padding: 0;
@@ -30,9 +33,11 @@ body {
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    user-select: none;
+    user-select: none; /* 防止遊戲中選取到文字 */
+    overflow: hidden; /* 防止行動版滑動時頁面跟著捲動 */
 }
 
+/* 頂部標題與分數欄佈局 */
 .header {
     display: flex;
     justify-content: space-between;
@@ -52,6 +57,7 @@ body {
     align-items: center;
 }
 
+/* 功能按鈕樣式 (主題、音效、AI) */
 .theme-btn {
     background: var(--grid-bg);
     border: none;
@@ -61,6 +67,9 @@ body {
     font-size: 20px;
     cursor: pointer;
     transition: transform 0.1s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .theme-btn:hover {
@@ -68,13 +77,14 @@ body {
 }
 
 .theme-btn.active {
-    background: #edc22e;
+    background: #edc22e; /* AI 執行中變換顏色 */
 }
 
 .theme-btn:active {
     transform: scale(0.95);
 }
 
+/* 分數顯示方塊 */
 .score-box {
     background: var(--grid-bg);
     padding: 10px 20px;
@@ -93,6 +103,13 @@ body {
     font-weight: bold;
 }
 
+/* 遊戲網格主要容器 */
+.game-wrapper {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
 .game-container {
     position: relative;
     background: var(--grid-bg);
@@ -100,6 +117,7 @@ body {
     border-radius: 10px;
 }
 
+/* 悔棋按鈕 */
 .undo-btn {
     position: absolute;
     bottom: -45px;
@@ -113,14 +131,11 @@ body {
     font-size: 20px;
     cursor: pointer;
     transition: transform 0.1s, opacity 0.2s;
+    z-index: 200;
 }
 
-.undo-btn:hover {
+.undo-btn:hover:not(:disabled) {
     transform: translateX(-50%) scale(1.1);
-}
-
-.undo-btn:active {
-    transform: translateX(-50%) scale(0.95);
 }
 
 .undo-btn:disabled {
@@ -128,6 +143,7 @@ body {
     cursor: not-allowed;
 }
 
+/* 背景網格定義 */
 .grid {
     display: grid;
     grid-template-columns: repeat(4, var(--cell-size));
@@ -135,6 +151,7 @@ body {
     gap: var(--gap);
 }
 
+/* 單個空格樣式 */
 .cell {
     background: var(--cell-empty);
     border-radius: 6px;
@@ -142,14 +159,17 @@ body {
     height: var(--cell-size);
 }
 
+/* 動態方塊渲染層 */
 .tile-container {
     position: absolute;
     top: var(--gap);
     left: var(--gap);
     width: calc(100% - var(--gap) * 2);
     height: calc(100% - var(--gap) * 2);
+    pointer-events: none; /* 確保不阻擋滑動事件 */
 }
 
+/* 單個數字方塊基礎樣式 */
 .tile {
     position: absolute;
     width: var(--cell-size);
@@ -160,10 +180,11 @@ body {
     align-items: center;
     font-size: 32px;
     font-weight: bold;
-    transition: transform 0.2s ease-in-out;
+    transition: transform 0.15s ease-in-out; /* 移動平滑動畫 */
     z-index: 10;
 }
 
+/* 出現與合併動畫 */
 .tile-new {
     animation: appear 0.2s ease;
 }
@@ -183,6 +204,7 @@ body {
     100% { transform: scale(1); }
 }
 
+/* 方塊顏色設定 - 經典模式 */
 .tile-2 { background: #eee4da; color: var(--text-dark); }
 .tile-4 { background: #ede0c8; color: var(--text-dark); }
 .tile-8 { background: #f2b179; color: var(--text-light); }
@@ -196,6 +218,7 @@ body {
 .tile-2048 { background: #edc22e; color: var(--text-light); font-size: 22px; }
 .tile-super { background: #3c3a32; color: var(--text-light); font-size: 18px; }
 
+/* 方塊顏色設定 - 深色/霓虹模式 */
 [data-theme="dark"] .tile-2 { background: #2d2d44; color: #fff; }
 [data-theme="dark"] .tile-4 { background: #3d3d5c; color: #fff; }
 [data-theme="dark"] .tile-8 { background: #e94560; color: #fff; }
@@ -209,6 +232,7 @@ body {
 [data-theme="dark"] .tile-2048 { background: #00cf95; color: #fff; font-size: 22px; }
 [data-theme="dark"] .tile-super { background: #009ecf; color: #fff; font-size: 18px; }
 
+/* 覆蓋層樣式：遊戲結束、獲勝、提示器 */
 .game-over {
     position: absolute;
     top: 0;
@@ -227,6 +251,15 @@ body {
     transition: opacity 0.3s;
 }
 
+[data-theme="dark"] .game-over {
+    background: rgba(22, 33, 62, 0.85);
+}
+
+.game-over.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
 .swipe-indicator {
     position: absolute;
     top: 50%;
@@ -236,7 +269,7 @@ body {
     opacity: 0;
     pointer-events: none;
     z-index: 50;
-    transition: opacity 0.15s, transform 0.15s;
+    color: var(--text-light); /* 提高對比 */
 }
 
 .swipe-indicator.show {
@@ -254,7 +287,6 @@ body {
     opacity: 0;
     pointer-events: none;
     z-index: 50;
-    transition: opacity 0.2s, transform 0.2s;
 }
 
 .combo-display.show {
@@ -272,11 +304,6 @@ body {
     0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
     50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
     100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-}
-
-.game-over.active {
-    opacity: 1;
-    pointer-events: all;
 }
 
 .win-display {
@@ -320,6 +347,7 @@ body {
     margin-bottom: 20px;
 }
 
+/* 通用按鈕樣式 */
 .restart-btn {
     background: #8f7a66;
     color: var(--text-light);
@@ -340,6 +368,7 @@ body {
     transform: scale(0.95);
 }
 
+/* 指示與說明文字 */
 .instructions {
     margin-top: 20px;
     color: var(--text-dark);
@@ -347,6 +376,7 @@ body {
     text-align: center;
 }
 
+/* 鍵盤提示佈局 */
 .key-hints {
     display: flex;
     gap: 8px;
@@ -379,128 +409,14 @@ body {
     gap: 4px;
 }
 
-.hint-text {
-    margin-top: 15px;
-    padding: 10px 20px;
-    background: rgba(187, 173, 160, 0.2);
-    border-radius: 6px;
-    font-size: 14px;
-    color: var(--text-dark);
-}
-
-.hint-text kbd {
-    background: var(--grid-bg);
-    color: var(--text-light);
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-family: inherit;
-    margin: 0 2px;
-}
-
-@media (max-width: 480px) {
-    :root {
-        --cell-size: 60px;
-        --gap: 8px;
-    }
-    
-    body {
-        padding: 10px;
-    }
-    
-    .header {
-        width: 100%;
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .title { 
-        font-size: 40px; 
-    }
-    
-    .score-container {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .game-wrapper {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .rules-panel {
-        width: calc(var(--cell-size) * 4 + var(--gap) * 5);
-        padding: 12px;
-    }
-    
-    .rules-panel h3 {
-        font-size: 16px;
-    }
-    
-    .rules-list {
-        font-size: 13px;
-    }
-    
-    .instructions {
-        font-size: 14px;
-    }
-    
-    .key-hints {
-        display: none;
-    }
-    
-    .tile {
-        font-size: 24px;
-    }
-    
-    .tile-128,
-    .tile-256,
-    .tile-512 {
-        font-size: 20px;
-    }
-    
-    .tile-1024,
-    .tile-2048 {
-        font-size: 16px;
-    }
-    
-    .game-over h2,
-    .win-display h2 {
-        font-size: 32px;
-    }
-    
-    .restart-btn {
-        padding: 10px 20px;
-        font-size: 16px;
-    }
-}
-
-@media (max-width: 360px) {
-    :root {
-        --cell-size: 55px;
-        --gap: 6px;
-    }
-    
-    .title {
-        font-size: 32px;
-    }
-    
-    .rules-panel {
-        display: none;
-    }
-}
-
-.game-wrapper {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
-}
-
+/* 規則面版樣式 */
 .rules-panel {
     background: var(--grid-bg);
     padding: 15px;
     border-radius: 10px;
     color: var(--text-light);
     min-width: 150px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .rules-panel h3 {
@@ -515,10 +431,6 @@ body {
     line-height: 1.8;
 }
 
-.rules-list li {
-    margin-bottom: 8px;
-}
-
 .rule-example {
     display: inline-block;
     background: #eee4da;
@@ -530,3 +442,49 @@ body {
     min-width: 24px;
     text-align: center;
 }
+
+/* 響應式：手機版適配 (通常網格縮小) */
+@media (max-width: 480px) {
+    :root {
+        --cell-size: 65px;
+        --gap: 8px;
+    }
+    
+    body {
+        padding: 5px;
+    }
+    
+    .header {
+        width: 100%;
+        flex-direction: column;
+        gap: 10px;
+        padding: 0 10px;
+    }
+    
+    .title { 
+        font-size: 36px; 
+    }
+    
+    .game-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .rules-panel {
+        width: calc(var(--cell-size) * 4 + var(--gap) * 5);
+        padding: 12px;
+    }
+    
+    .key-hints {
+        display: none; /* 行動裝置隱藏按鍵提示 */
+    }
+}
+
+@media (max-width: 360px) {
+    :root {
+        --cell-size: 55px;
+        --gap: 6px;
+    }
+}
+
