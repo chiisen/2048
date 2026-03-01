@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -11,10 +12,11 @@
     <!-- 遊戲自定義樣式 -->
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <!-- 遊戲頂部資訊欄：包含標題、分數、功能切換 -->
     <div class="header">
-        <h1 class="title">2048</h1>
+        <h1 class="title">2048 <span class="version">v1.2.0</span></h1>
         <div class="score-container">
             <div class="score-box">
                 <div class="score-label">分數</div>
@@ -39,31 +41,43 @@
         <div class="game-container">
             <!-- 基礎背景網格 (4x4 空格) -->
             <div class="grid">
-                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-                <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
+                <div class="cell"></div>
             </div>
             <!-- 實際渲染數字方塊的容器 -->
             <div class="tile-container" id="tile-container"></div>
-            
+
             <!-- 遊戲結束/獲勝彈窗 -->
             <div class="game-over" id="game-over">
                 <h2>遊戲結束!</h2>
                 <button class="restart-btn" id="restart-btn">再玩一次</button>
             </div>
-            
+
             <!-- 方向與連擊指示器 -->
             <div class="swipe-indicator" id="swipe-indicator"></div>
             <div class="combo-display" id="combo-display"></div>
-            
+
             <!-- 獲勝後的遮罩 -->
             <div class="win-display" id="win-display">
                 <h2>恭喜!</h2>
                 <p>你達到了 2048!</p>
                 <button class="restart-btn" id="continue-btn">繼續遊戲</button>
             </div>
-            
+
             <!-- 悔棋按鈕 -->
             <button class="undo-btn" id="undo-btn" title="悔棋">↩️</button>
         </div>
@@ -73,7 +87,8 @@
             <h3>遊戲規則</h3>
             <ul class="rules-list">
                 <li>移動方塊，讓相同數字合併</li>
-                <li><span class="rule-example">2</span> + <span class="rule-example">2</span> = <span class="rule-example">4</span></li>
+                <li><span class="rule-example">2</span> + <span class="rule-example">2</span> = <span
+                        class="rule-example">4</span></li>
                 <li>目標：合併出 <strong>2048</strong></li>
             </ul>
         </div>
@@ -103,5 +118,5 @@
     <!-- 遊戲邏輯 JS -->
     <script src="game.js"></script>
 </body>
-</html>
 
+</html>
